@@ -1,0 +1,21 @@
+# docker-compose.yml
+redis:
+    image: redis
+    container_name: redis_backend
+    expose:
+      - 6379
+node:
+    container_name: node_backend
+    build: ./
+    volumes:
+      - ./:/var/www/node
+    ports:
+      - 3000:3000
+    links: 
+      - redis
+    environment:
+      - REDIS_URL=redis://redis_backend
+      - NODE_ENV=development
+      - PORT=3000
+    command:
+      sh -c 'npm i && npm run dev'  
