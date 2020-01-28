@@ -49,23 +49,12 @@
 <script>
 export default {
   async mounted() {
-    await fetch("/token", {
-      headers: {
-        "Content-Type": "application/json" // we will be sending JSON
-      }
+    await this.api("GET", "/token");
+    const res = await this.api("POST", "/login", {
+      username: "Gigio",
+      password: "Pass"
     });
-    fetch("/login", {
-      method: "POST",
-      body: JSON.stringify({
-        username: "Gigio",
-        password: "Pass"
-      }),
-      headers: {
-        "Content-Type": "application/json" // we will be sending JSON
-      }
-    })
-      .then(res => res.text())
-      .then(console.log);
+    console.log(res);
   }
 };
 </script>

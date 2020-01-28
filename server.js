@@ -12,8 +12,6 @@ const csurf = require("csurf");
 
 app.use(log)
 app.use(express.static(`${__dirname}/static`))
-app.use(cookieParser(process.env.SESSION_SECRET))
-
 // Redis session storage prepare
 const RedisStore = require('connect-redis')(session);
 // Create client for redis
@@ -31,24 +29,28 @@ app.use(session({
         client
     }),
 }))
-
 app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({extended: false}))
-
-
-
+app.use(bodyParser.urlencoded({
+    extended: false
+}))
+const csrfProtection = csurf({
+    cookie: true
+})
+app.use(cookieParser(process.env.SESSION_SECRET))
 app.use((req, res, next) => {
-    if(req.session.pageCount) req.session.pageCount++
+    if (req.session.pageCount) req.session.pageCount++
     else req.session.pageCount = 1;
     next();
 })
-app.get("/token",  (req, res) => {
-    res.status(200).send('OK')
+
+app.get("/token", csrfProtection, (req, res) => {
+    res.status(200).send({
+        token: req.csrfToken()
+    })
 })
-app.use(csurf({ cookie: true }))
 app.get("/", routes.index)
-app.get("/login", routes.login)
-app.post("/login", routes.loginProcess)
+app.get("/login", csrfProtection, routes.login)
+app.post("/login", csrfProtection, routes.loginProcess)
 app.get("/chat", routes.chat)
 
 app.use(errorHandlers.error)
