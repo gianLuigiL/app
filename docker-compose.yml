@@ -13,9 +13,5 @@ node:
       - 3000:3000
     links: 
       - redis
-    environment:
-      - REDIS_URL=redis://redis_backend
-      - NODE_ENV=development
-      - PORT=3000
     command:
       sh -c 'npm i && npm run dev'  
