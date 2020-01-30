@@ -14,12 +14,7 @@ const csurf = require("csurf");
 const util = require("./middleware/utilities")
 const passport = require("./passport");
 const rabbit = require("./rabbit/connect");
-const connect = require("./rabbit/connect");
-let conn, chan;
-connect().then(res => {
-    console.log(res)
-})
-
+const { sendMessage } = require("./rabbit/connect");
 
 var io = require('socket.io')(app)
 express.use(log)
@@ -78,11 +73,11 @@ express.post("/login", csrfProtection, routes.loginProcess)
 express.get("/chat", [util.requireAuthentication], routes.chat)
 express.get("/logout", routes.logOut)
 express.post('/message', (req, res) => {
-    console.log(conn, chan)
     const msg = req.body.msg;
-    if(chan) {
-        chan.sendToQueue(process.env.MAIN_QUEUE, Buffer.from(msg))
-        res.status(200).send("Message sent")
+    console.log(msg)
+    if (sendMessage) {
+        sendMessage(msg)
+        res.send("Message sent.")
     } else {
         res.status(200).send("Rabbit is not ready");
     }

@@ -1,18 +1,14 @@
 require('dotenv').config()
-const { chan : channel } = require("./rabbit/connect");
+const { channel } = require("./rabbit/connect");
 
-const readMessage = () => {
-    return new Promise( (resolve, reject) => {
-        if(channel) {
-            channel.consume(process.env.MAIN_QUEUE, function(msg) {
-                resolve(msg.content.toString())
-              }, {
-                  noAck: true
-            });
-        } else {
-            setTimeout(readMessage, 5000);
-        }
+//Read messages from default queue
+channel().then(channel => {
+    return channel.assertQueue(process.env.MAIN_QUEUE).then(function (ok) {
+        return channel.consume(process.env.MAIN_QUEUE, function (msg) {
+            if (msg !== null) {
+                console.log(msg.content.toString());
+                channel.ack(msg);
+            }
+        });
     })
-}
-
-readMessage();
+})

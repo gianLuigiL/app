@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon server.js",
-    "worker": "nodemon worker.js",
+    "dev": "npm i && nodemon server.js",
+    "worker": "npm i && nodemon worker.js",
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
