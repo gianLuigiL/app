@@ -1,17 +1,40 @@
 # docker-compose.yml
-redis:
-    image: redis
-    container_name: redis_backend
-    expose:
-      - 6379
-node:
-    container_name: node_backend
-    build: ./
-    volumes:
-      - ./:/var/www/node
-    ports:
-      - 3000:3000
-    links: 
-      - redis
-    command:
-      sh -c 'npm i && npm run dev'  
+version: "3.6"
+services:
+  redis:
+      image: redis
+      container_name: redis_backend
+      expose:
+        - 6379
+  rabbit:
+      image: "rabbitmq:3-management"
+      container_name: rabbit
+      ports:
+        - "5672:5672"
+        - "15672:15672"
+      volumes:
+        - './:/data'
+  node:
+      container_name: node_backend
+      build: ./
+      volumes:
+        - ./:/var/www/node
+      ports:
+        - 3000:3000
+      depends_on: 
+        - redis
+        - rabbit
+      command:
+        sh -c 'npm run dev'  
+  worker1:
+      container_name: worker_node_1
+      build: ./
+      volumes:
+        - ./:/var/www/node
+      ports:
+        - 4000:4000
+      depends_on: 
+        - redis
+        - rabbit
+      command:
+        sh -c 'npm run worker'  

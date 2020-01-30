@@ -30,7 +30,7 @@
             </form>
             <div class="row mt-4">
               <div class="col-6">
-                <button class="btn btn-block facebook text-white">
+                <button class="btn btn-block facebook text-white" @click="ping">
                   <i class="fa fa-facebook"></i> Facebook
                 </button>
               </div>
@@ -48,13 +48,20 @@
 </template>
 <script>
 export default {
-  async mounted() {
-    await this.api("GET", "/token");
-    const res = await this.api("POST", "/login", {
-      username: "Gigio",
-      password: "Pass"
-    });
-    console.log(res);
+  name: "app",
+  async created() {
+    const { token } = await this.api("GET", "/token");
+    this.$store.commit("user/setCSRF", token);
+  },
+  sockets: {
+    connect: function() {
+      console.log("Websocket connected on the client side");
+    }
+  },
+  methods: {
+    ping() {
+      this.$socket.client.emit("reply");
+    }
   }
 };
 </script>
